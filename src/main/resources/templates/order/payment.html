@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<body>
+<div layout:fragment="content">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body">
+          <h2>Wybierz metodę płatności</h2>
+
+          <form th:action="@{/order/payment}" method="post">
+            <div class="payment-options mb-4">
+              <!-- BLIK -->
+              <div class="form-check mb-3 p-3 border rounded">
+                <input class="form-check-input" type="radio"
+                       name="paymentType" value="BLIK"
+                       id="blik" checked>
+                <label class="form-check-label w-100" for="blik">
+                  <div class="d-flex align-items-center">
+                    <img src="/images/blik.jpg" alt="BLIK"
+                         class="me-2" style="height: 24px;">
+                    <span>BLIK</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Karta płatnicza -->
+              <div class="form-check mb-3 p-3 border rounded">
+                <input class="form-check-input" type="radio"
+                       name="paymentType" value="CARD"
+                       id="card">
+                <label class="form-check-label w-100" for="card">
+                  <div class="d-flex align-items-center">
+                    <span>Karta płatnicza</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Przelew -->
+              <div class="form-check mb-3 p-3 border rounded">
+                <input class="form-check-input" type="radio"
+                       name="paymentType" value="TRANSFER"
+                       id="transfer">
+                <label class="form-check-label w-100" for="transfer">
+                  <div class="d-flex align-items-center">
+                    <span>Przelew tradycyjny</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Bonusy -->
+            <div class="card mb-4">
+              <div class="card-body">
+                <h3>Bonusy</h3>
+
+                <!-- Kod rabatowy -->
+                <div class="mb-3">
+                  <label class="form-label">Kod rabatowy</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control"
+                           id="promoCode">
+                    <button type="button" class="btn btn-outline-warning"
+                            id="applyPromoCode">
+                      Zastosuj
+                    </button>
+                  </div>
+                  <div id="promoCodeMessage" class="form-text"></div>
+                </div>
+
+                <!-- Punkty lojalnościowe -->
+                <div class="mb-3">
+                  <label class="form-label">
+                    Punkty lojalnościowe
+                    (dostępne: <span th:text="${availablePoints}">0</span>)
+                  </label>
+                  <div class="input-group">
+                    <label for="loyaltyPoints"></label><input type="number" class="form-control"
+                                                              id="loyaltyPoints" min="0">
+                    <button type="button" class="btn btn-outline-warning"
+                            id="applyPoints">
+                      Wykorzystaj punkty
+                    </button>
+                  </div>
+                  <div id="pointsMessage" class="form-text"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a th:href="@{/order/delivery}"
+                 class="btn btn-outline-warning">COFNIJ</a>
+              <button type="submit" class="btn btn-warning">ZAPŁAĆ</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="right-summary">
+        <h4>Twoje zamówienie:</h4>
+        <!-- Dodajemy sprawdzenie czy orderSession i order istnieją -->
+        <div th:if="${session.orderSession != null and session.orderSession.order != null}">
+          <div th:each="item : ${session.orderSession.order.items}" class="d-flex justify-content-between mb-2">
+            <span th:text="${item.product?.name}"></span>
+            <span th:text="${#numbers.formatDecimal(item.price, 1, 2)} + ' zł'"></span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <strong>Wartość produktów:</strong>
+            <strong th:text="${#numbers.formatDecimal(session.orderSession.order.subtotal, 1, 2)} + ' zł'"></strong>
+          </div>
+        </div>
+        <!-- Komunikat gdy koszyk jest pusty -->
+        <div th:unless="${session.orderSession != null and session.orderSession.order != null}">
+          <p>Twój koszyk jest pusty</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div layout:fragment="scripts">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const applyPromoCodeBtn = document.getElementById('applyPromoCode');
+      const applyPointsBtn = document.getElementById('applyPoints');
+
+      applyPromoCodeBtn.addEventListener('click', function() {
+        const code = document.getElementById('promoCode').value;
+        fetch('/order/apply-promo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `code=${code}`
+        })
+                .then(response => response.json())
+                .then(data => {
+                  const messageElement = document.getElementById('promoCodeMessage');
+                  if (data.error) {
+                    messageElement.classList.add('text-danger');
+                    messageElement.textContent = data.error;
+                  } else {
+                    messageElement.classList.add('text-success');
+                    messageElement.textContent = data.message;
+                    // Odświeżenie podsumowania
+                    location.reload();
+                  }
+                });
+      });
+
+      applyPointsBtn.addEventListener('click', function() {
+        const points = document.getElementById('loyaltyPoints').value;
+        fetch('/order/apply-points', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `points=${points}`
+        })
+                .then(response => response.json())
+                .then(data => {
+                  const messageElement = document.getElementById('pointsMessage');
+                  if (data.error) {
+                    messageElement.classList.add('text-danger');
+                    messageElement.textContent = data.error;
+                  } else {
+                    messageElement.classList.add('text-success');
+                    messageElement.textContent = data.message;
+                    // Odświeżenie podsumowania
+                    location.reload();
+                  }
+                });
+      });
+    });
+  </script>
+</div>
+</body>
+</html>

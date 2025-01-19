@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="summary" class="right-summary">
+  <h4>Twoje zamówienie:</h4>
+
+  <div th:each="item : ${session.orderSession.order.items}"
+       class="d-flex justify-content-between mb-2">
+    <span th:text="${item.product.name}"></span>
+    <span th:text="${#numbers.formatDecimal(item.price, 1, 2)} + ' zł'"></span>
+  </div>
+
+  <hr>
+
+  <div class="d-flex justify-content-between mb-2">
+    <span>Wartość produktów:</span>
+    <span th:text="${#numbers.formatDecimal(session.orderSession.order.subtotal, 1, 2)} + ' zł'"></span>
+  </div>
+
+  <div th:if="${session.orderSession.order.deliveryCost != null}"
+       class="d-flex justify-content-between mb-2">
+    <span>Koszt dostawy:</span>
+    <span th:text="${#numbers.formatDecimal(session.orderSession.order.deliveryCost, 1, 2)} + ' zł'"></span>
+  </div>
+
+  <div th:if="${session.orderSession.order.discount > 0}"
+       class="d-flex justify-content-between mb-2 text-success">
+    <span>Rabat:</span>
+    <span th:text="'-' + ${#numbers.formatDecimal(session.orderSession.order.discount, 1, 2)} + ' zł'"></span>
+  </div>
+
+  <hr>
+
+  <div class="d-flex justify-content-between">
+    <strong>Do zapłaty:</strong>
+    <strong th:text="${#numbers.formatDecimal(session.orderSession.order.total, 1, 2)} + ' zł'"></strong>
+  </div>
+</div>
+</body>
+</html>

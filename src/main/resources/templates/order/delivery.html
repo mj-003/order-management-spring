@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<body>
+<div layout:fragment="content">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body">
+          <h2>Wybierz sposób dostawy</h2>
+          <form th:action="@{/order/delivery}" method="post"
+                th:object="${deliveryForm}">
+
+            <div class="delivery-options mb-4">
+              <!-- Kurier (tylko dla małych gabarytów) -->
+              <div class="form-check mb-3 p-3 border rounded"
+                   th:if="${!hasLargeItems}">
+                <input class="form-check-input" type="radio"
+                       th:field="*{deliveryType}"
+                       value="COURIER" id="courier">
+                <label class="form-check-label w-100" for="courier">
+                  <div class="d-flex justify-content-between">
+                    <span>Kurier</span>
+                    <span>12,99 zł</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Kurier dla dużych gabarytów -->
+              <div class="form-check mb-3 p-3 border rounded"
+                   th:if="${hasLargeItems}">
+                <input class="form-check-input" type="radio"
+                       th:field="*{deliveryType}"
+                       value="LARGE_COURIER" id="largeCourier">
+                <label class="form-check-label w-100" for="largeCourier">
+                  <div class="d-flex justify-content-between">
+                    <span>Kurier (duże gabaryty)</span>
+                    <span>29,99 zł</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- InPost (tylko dla małych gabarytów) -->
+              <div class="form-check mb-3 p-3 border rounded"
+                   th:if="${!hasLargeItems}">
+                <input class="form-check-input" type="radio"
+                       th:field="*{deliveryType}"
+                       value="INPOST" id="inpost">
+                <label class="form-check-label w-100" for="inpost">
+                  <div class="d-flex justify-content-between">
+                    <span>Paczkomat InPost</span>
+                    <span>9,99 zł</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Odbiór osobisty -->
+              <div class="form-check mb-3 p-3 border rounded">
+                <input class="form-check-input" type="radio"
+                       th:field="*{deliveryType}"
+                       value="PICKUP" id="pickup">
+                <label class="form-check-label w-100" for="pickup">
+                  <div class="d-flex justify-content-between">
+                    <span>Odbiór osobisty</span>
+                    <span>0,00 zł</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Formularz adresowy dla kuriera -->
+            <div id="courierAddressForm" class="delivery-details mb-4" style="display: none;">
+              <h3>Dane do wysyłki</h3>
+              <div class="mb-3">
+                <label for="street" class="form-label">Ulica</label>
+                <input type="text" class="form-control" id="street" th:field="*{deliveryAddress.street}">
+              </div>
+              <div class="mb-3">
+                <label for="buildingNumber" class="form-label">Numer budynku</label>
+                <input type="text" class="form-control" id="buildingNumber" th:field="*{deliveryAddress.buildingNumber}">
+              </div>
+              <div class="mb-3">
+                <label for="apartmentNumber" class="form-label">Numer mieszkania</label>
+                <input type="text" class="form-control" id="apartmentNumber" th:field="*{deliveryAddress.apartmentNumber}">
+              </div>
+              <div class="mb-3">
+                <label for="postalCode" class="form-label">Kod pocztowy</label>
+                <input type="text" class="form-control" id="postalCode" th:field="*{deliveryAddress.postalCode}">
+              </div>
+              <div class="mb-3">
+                <label for="city" class="form-label">Miejscowość</label>
+                <input type="text" class="form-control" id="city" th:field="*{deliveryAddress.city}">
+              </div>
+              <div class="mb-3">
+                <label for="phone" class="form-label">Telefon kontaktowy</label>
+                <input type="tel" class="form-control" id="phone" th:field="*{phone}">
+              </div>
+            </div>
+
+
+            <!-- Wybór paczkomatu -->
+            <div id="inpostSelection" class="delivery-details mb-4" style="display: none;">
+              <h3>Wybierz paczkomat</h3>
+              <div class="mb-3">
+                <label for="phone" class="form-label">Telefon kontaktowy</label>
+                <input type="tel" class="form-control" id="phone" th:field="*{phone}">
+                <label for="inpostSearch"></label><input type="text" class="form-control mb-2" id="inpostSearch"
+                                                         placeholder="Wpisz kod pocztowy lub nazwę ulicy...">
+                <label for="inpostPoint"></label><select class="form-select" id="inpostPoint" name="inpostPoint" th:field="*{inpostPoint}">
+                  <option value="">Wybierz paczkomat</option>
+                  <option value="WAW123">Warszawa, ul. Marszałkowska 123 (WAW123)</option>
+                  <option value="WAW234">Warszawa, ul. Puławska 234 (WAW234)</option>
+                  <option value="WAW345">Warszawa, ul. Jana Pawła II 345 (WAW345)</option>
+                  <option value="WAW456">Warszawa, ul. Świętokrzyska 456 (WAW456)</option>
+                  <option value="WAW567">Warszawa, ul. Targowa 567 (WAW567)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Wybór punktu odbioru -->
+            <div id="pickupPointSelection" class="delivery-details mb-4" style="display: none;">
+              <h3>Wybierz punkt odbioru</h3>
+              <div class="mb-3">
+                <select class="form-select" id="pickupPoint" name="pickupPoint" th:field="*{pickupPoint}">
+                  <option value="">Wybierz sklep</option>
+                  <option value="SHOP1">Warszawa Centrum - Złote Tarasy</option>
+                  <option value="SHOP2">Warszawa Mokotów - Galeria Mokotów</option>
+                  <option value="SHOP3">Warszawa Praga - Centrum Wileńska</option>
+                  <option value="SHOP4">Warszawa Ursynów - Galeria Ursynów</option>
+                  <option value="SHOP5">Warszawa Wola - Blue City</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Opcja wniesienia (tylko dla dużych gabarytów) -->
+            <div id="homeDeliveryOption" class="mb-4" style="display: none;"
+                 th:if="${hasLargeItems}">
+              <div class="form-check p-3 border rounded">
+                <input class="form-check-input" type="checkbox"
+                       th:field="*{homeDelivery}"
+                       id="homeDelivery">
+                <label class="form-check-label w-100" for="homeDelivery">
+                  <div class="d-flex justify-content-between">
+                    <span>Wniesienie do domu</span>
+                    <span>120,99 zł</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Kalendarz dostawy (dla wniesienia do domu) -->
+            <div id="deliveryCalendar" class="mb-4" style="display: none;">
+              <h3>Wybierz termin dostawy</h3>
+              <div class="row">
+                <div th:each="date : ${availableDates}" class="col">
+                  <div class="card text-center p-2 mb-2 cursor-pointer delivery-date"
+                       th:data-date="${date}">
+                    <div th:text="${#temporals.format(date, 'EEEE')}">Dzień</div>
+                    <div th:text="${#temporals.format(date, 'd.MM')}">Data</div>
+                  </div>
+                </div>
+              </div>
+              <label for="selectedDate"></label><input type="text"
+                                                       th:field="*{deliveryDate}"
+                                                       id="selectedDate"
+                                                       readonly
+                                                       class="form-control"
+                                                       placeholder="Wybierz datę dostawy klikając w jeden z powyższych terminów">
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a th:href="@{/order/details}" class="btn btn-outline-warning">COFNIJ</a>
+              <button type="submit" class="btn btn-warning">DALEJ</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="right-summary">
+        <h4>Twoje zamówienie:</h4>
+        <div th:if="${session.orderSession != null and session.orderSession.order != null}">
+          <div th:each="item : ${session.orderSession.order.items}" class="d-flex justify-content-between mb-2">
+            <span th:text="${item.product?.name}"></span>
+            <span th:text="${#numbers.formatDecimal(item.price, 1, 2)} + ' zł'"></span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <strong>Wartość produktów:</strong>
+            <strong th:text="${#numbers.formatDecimal(session.orderSession.order.subtotal, 1, 2)} + ' zł'"></strong>
+          </div>
+        </div>
+        <div th:unless="${session.orderSession != null and session.orderSession.order != null}">
+          <p>Twój koszyk jest pusty</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div layout:fragment="scripts">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all form elements
+      const largeCourierRadio = document.getElementById('largeCourier');
+      const courierRadio = document.getElementById('courier');
+      const inpostRadio = document.getElementById('inpost');
+      const pickupRadio = document.getElementById('pickup');
+      const homeDeliveryOption = document.getElementById('homeDeliveryOption');
+      const homeDeliveryCheckbox = document.getElementById('homeDelivery');
+      const deliveryCalendar = document.getElementById('deliveryCalendar');
+      const selectedDateInput = document.getElementById('selectedDate');
+      const deliveryForm = document.querySelector('form');
+      const courierAddressForm = document.getElementById('courierAddressForm');
+      const inpostSelection = document.getElementById('inpostSelection');
+      const pickupPointSelection = document.getElementById('pickupPointSelection');
+      const inpostSearch = document.getElementById('inpostSearch');
+
+      // Delivery costs configuration
+      const deliveryCosts = {
+        COURIER: 12.99,
+        LARGE_COURIER: 29.99,
+        INPOST: 9.99,
+        PICKUP: 0,
+        HOME_DELIVERY: 120.99
+      };
+
+      // Input validation patterns
+      const inputValidation = {
+        phone: {
+          pattern: '[0-9]{9}',
+          maxLength: 9,
+          placeholder: '123456789'
+        },
+        postalCode: {
+          pattern: '[0-9]{2}-[0-9]{3}',
+          maxLength: 6,
+          placeholder: '00-000'
+        }
+      };
+
+      // Get initial order total from the summary section
+      const getSubtotal = () => {
+        const subtotalElement = document.querySelector('.right-summary strong:last-child');
+        if (subtotalElement) {
+          return parseFloat(subtotalElement.textContent.replace(' zł', ''));
+        }
+        return 0;
+      };
+
+      // Update order summary
+      function updateOrderSummary() {
+        const summaryContainer = document.querySelector('.right-summary');
+        if (!summaryContainer) return;
+
+        const subtotal = getSubtotal();
+        let deliveryCost = 0;
+
+        // Calculate delivery cost based on selected option
+        if (courierRadio?.checked) {
+          deliveryCost = deliveryCosts.COURIER;
+        } else if (largeCourierRadio?.checked) {
+          deliveryCost = deliveryCosts.LARGE_COURIER;
+          if (homeDeliveryCheckbox?.checked) {
+            deliveryCost += deliveryCosts.HOME_DELIVERY;
+          }
+        } else if (inpostRadio?.checked) {
+          deliveryCost = deliveryCosts.INPOST;
+        }
+
+        // Update or create delivery cost row
+        let deliveryRow = summaryContainer.querySelector('.delivery-cost-row');
+        if (!deliveryRow) {
+          deliveryRow = document.createElement('div');
+          deliveryRow.className = 'delivery-cost-row d-flex justify-content-between mt-2';
+          const lastHr = summaryContainer.querySelector('hr');
+          if (lastHr) {
+            lastHr.insertAdjacentElement('beforebegin', deliveryRow);
+          }
+        }
+
+        // Update delivery cost display
+        if (deliveryCost > 0) {
+          deliveryRow.innerHTML = `
+        <span>Koszt dostawy:</span>
+        <span>${deliveryCost.toFixed(2)} zł</span>
+      `;
+          deliveryRow.style.display = 'flex';
+        } else {
+          deliveryRow.style.display = 'none';
+        }
+
+        // Update total
+        const total = subtotal + deliveryCost;
+
+        // Update or create total row
+        let totalRow = summaryContainer.querySelector('.total-row');
+        if (!totalRow) {
+          totalRow = document.createElement('div');
+          totalRow.className = 'total-row d-flex justify-content-between mt-2';
+          summaryContainer.appendChild(totalRow);
+        }
+
+        totalRow.innerHTML = `
+      <strong>Suma:</strong>
+      <strong>${total.toFixed(2)} zł</strong>
+    `;
+      }
+
+      // Setup postal code input formatting
+      const postalCodeInput = document.getElementById('postalCode');
+      if (postalCodeInput) {
+        postalCodeInput.addEventListener('input', function(e) {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value.length > 2) {
+            value = value.slice(0, 2) + '-' + value.slice(2);
+          }
+          e.target.value = value;
+        });
+      }
+
+      // Setup phone number inputs
+      document.querySelectorAll('input[type="tel"]').forEach(input => {
+        input.setAttribute('pattern', inputValidation.phone.pattern);
+        input.setAttribute('maxlength', inputValidation.phone.maxLength);
+        input.setAttribute('placeholder', inputValidation.phone.placeholder);
+        input.addEventListener('input', function(e) {
+          e.target.value = e.target.value.replace(/\D/g, '');
+        });
+      });
+
+      function updateDeliveryFormVisibility() {
+        // Hide all forms first
+        courierAddressForm.style.display = 'none';
+        inpostSelection.style.display = 'none';
+        pickupPointSelection.style.display = 'none';
+
+        // Remove required attributes from all inputs
+        document.querySelectorAll('.delivery-details input, .delivery-details select').forEach(input => {
+          input.removeAttribute('required');
+        });
+
+        // Show and set required fields based on delivery type
+        if (courierRadio?.checked || largeCourierRadio?.checked) {
+          courierAddressForm.style.display = 'block';
+          document.querySelectorAll('#courierAddressForm input').forEach(input => {
+            input.setAttribute('required', '');
+
+            // Add specific validations
+            if (input.id === 'phone') {
+              input.setAttribute('pattern', inputValidation.phone.pattern);
+              input.setAttribute('maxlength', inputValidation.phone.maxLength);
+            } else if (input.id === 'postalCode') {
+              input.setAttribute('pattern', inputValidation.postalCode.pattern);
+              input.setAttribute('maxlength', inputValidation.postalCode.maxLength);
+            }
+          });
+        } else if (inpostRadio?.checked) {
+          inpostSelection.style.display = 'block';
+          document.getElementById('inpostPoint').setAttribute('required', '');
+          const inpostPhone = inpostSelection.querySelector('input[type="tel"]');
+          if (inpostPhone) {
+            inpostPhone.setAttribute('required', '');
+          }
+        } else if (pickupRadio?.checked) {
+          pickupPointSelection.style.display = 'block';
+          document.getElementById('pickupPoint').setAttribute('required', '');
+        }
+
+        // Update order summary whenever delivery type changes
+        updateOrderSummary();
+      }
+
+      function validateForm(event) {
+        let isValid = true;
+        const errorMessages = [];
+
+        // Validate courier address form
+        if (courierRadio?.checked || largeCourierRadio?.checked) {
+          document.querySelectorAll('#courierAddressForm input[required]').forEach(input => {
+            if (!input.value) {
+              isValid = false;
+              errorMessages.push(`Pole ${input.previousElementSibling.textContent} jest wymagane`);
+            } else if (input.pattern && !input.checkValidity()) {
+              isValid = false;
+              if (input.id === 'phone') {
+                errorMessages.push('Numer telefonu musi składać się z 9 cyfr');
+              } else if (input.id === 'postalCode') {
+                errorMessages.push('Kod pocztowy musi być w formacie 00-000');
+              }
+            }
+          });
+        }
+
+        // Validate InPost selection
+        if (inpostRadio?.checked) {
+          const inpostPoint = document.getElementById('inpostPoint');
+          const inpostPhone = inpostSelection.querySelector('input[type="tel"]');
+
+          if (!inpostPoint.value) {
+            isValid = false;
+            errorMessages.push('Proszę wybrać paczkomat');
+          }
+
+          if (inpostPhone && (!inpostPhone.value || !inpostPhone.checkValidity())) {
+            isValid = false;
+            errorMessages.push('Proszę podać prawidłowy numer telefonu (9 cyfr)');
+          }
+        }
+
+        // Validate pickup point selection
+        if (pickupRadio?.checked && !document.getElementById('pickupPoint').value) {
+          isValid = false;
+          errorMessages.push('Proszę wybrać punkt odbioru');
+        }
+
+        // Validate home delivery date
+        if (largeCourierRadio?.checked && homeDeliveryCheckbox?.checked && !selectedDateInput.value) {
+          isValid = false;
+          errorMessages.push('Proszę wybrać datę dostawy');
+        }
+
+        if (!isValid) {
+          event.preventDefault();
+          alert(errorMessages.join('\n'));
+        }
+
+        return isValid;
+      }
+
+      // Event Listeners
+      if (deliveryForm) {
+        deliveryForm.addEventListener('submit', validateForm);
+      }
+
+      // Listen for delivery type changes
+      document.querySelectorAll('input[name="deliveryType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          updateDeliveryFormVisibility();
+          updateOrderSummary();
+        });
+      });
+
+      // Listen for home delivery option changes
+      if (homeDeliveryCheckbox) {
+        homeDeliveryCheckbox.addEventListener('change', () => {
+          if (homeDeliveryCheckbox.checked) {
+            selectedDateInput.setAttribute('required', '');
+          } else {
+            selectedDateInput.removeAttribute('required');
+          }
+          updateOrderSummary();
+        });
+      }
+
+      // Initial setup
+      updateDeliveryFormVisibility();
+      updateOrderSummary();
+    });
+    </script>
+    </div>
+
+
+</body>
+</html>

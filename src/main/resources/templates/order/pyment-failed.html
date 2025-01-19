@@ -1,0 +1,27 @@
+// src/main/resources/templates/order/payment-failed.html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<body>
+<div layout:fragment="content">
+  <div class="text-center">
+    <div class="mb-4">
+      <i class="fas fa-exclamation-circle text-danger" style="font-size: 64px;"></i>
+    </div>
+    <h2>Płatność nie powiodła się</h2>
+    <p class="lead">Wystąpił problem podczas przetwarzania płatności.</p>
+
+    <div class="alert alert-danger w-75 mx-auto my-4">
+      <p>Prosimy spróbować ponownie lub wybrać inną metodę płatności.</p>
+      <p class="mb-0">Jeśli problem będzie się powtarzał, prosimy o kontakt z naszym działem obsługi klienta.</p>
+    </div>
+
+    <div class="d-flex justify-content-center gap-3">
+      <a th:href="@{/order/payment}" class="btn btn-warning">SPRÓBUJ PONOWNIE</a>
+      <a href="/" class="btn btn-outline-warning">WRÓĆ DO SKLEPU</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
