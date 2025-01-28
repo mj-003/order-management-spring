@@ -74,7 +74,7 @@
                 <div class="mb-3">
                   <label class="form-label">
                     Punkty lojalnościowe
-                    (dostępne: <span th:text="${availablePoints}">0</span>)
+                    (dostępne: <span th:text="${availablePoints}"></span>)
                   </label>
                   <div class="input-group">
                     <label for="loyaltyPoints"></label><input type="number" class="form-control"
@@ -99,22 +99,51 @@
       </div>
     </div>
 
+    <!-- Sekcja podsumowania w prawej kolumnie -->
     <div class="col-md-4">
       <div class="right-summary">
         <h4>Twoje zamówienie:</h4>
-        <!-- Dodajemy sprawdzenie czy orderSession i order istnieją -->
         <div th:if="${session.orderSession != null and session.orderSession.order != null}">
+          <!-- Lista produktów -->
           <div th:each="item : ${session.orderSession.order.items}" class="d-flex justify-content-between mb-2">
             <span th:text="${item.product?.name}"></span>
             <span th:text="${#numbers.formatDecimal(item.price, 1, 2)} + ' zł'"></span>
           </div>
           <hr>
+
+          <!-- Wartość produktów -->
+          <div class="d-flex justify-content-between mb-2">
+            <span>Wartość produktów:</span>
+            <span th:text="${#numbers.formatDecimal(session.orderSession.order.subtotal, 1, 2)} + ' zł'"></span>
+          </div>
+
+          <!-- Dostawa -->
+          <div class="d-flex justify-content-between mb-2" th:if="${session.orderSession.order.deliveryType != null}">
+            <span>Metoda dostawy:</span>
+            <span th:text="${session.orderSession.order.deliveryType.displayName}"></span>
+          </div>
+          <div class="d-flex justify-content-between mb-2" th:if="${session.orderSession.order.deliveryCost > 0}">
+            <span>Koszt dostawy:</span>
+            <span th:text="${#numbers.formatDecimal(session.orderSession.order.deliveryCost, 1, 2)} + ' zł'"></span>
+          </div>
+
+          <!-- Rabaty i punkty -->
+          <div class="d-flex justify-content-between mb-2" th:if="${session.orderSession.order.discount > 0}">
+            <span>Rabat:</span>
+            <span class="text-danger" th:text="'-' + ${#numbers.formatDecimal(session.orderSession.order.discount, 1, 2)} + ' zł'"></span>
+          </div>
+          <div class="d-flex justify-content-between mb-2" th:if="${session.orderSession.order.usedLoyaltyPoints > 0}">
+            <span>Wykorzystane punkty:</span>
+            <span class="text-success" th:text="${session.orderSession.order.usedLoyaltyPoints}"></span>
+          </div>
+
+          <hr>
+          <!-- Suma całkowita -->
           <div class="d-flex justify-content-between">
-            <strong>Wartość produktów:</strong>
-            <strong th:text="${#numbers.formatDecimal(session.orderSession.order.subtotal, 1, 2)} + ' zł'"></strong>
+            <strong>Suma całkowita:</strong>
+            <strong th:text="${#numbers.formatDecimal(session.orderSession.order.total, 1, 2)} + ' zł'"></strong>
           </div>
         </div>
-        <!-- Komunikat gdy koszyk jest pusty -->
         <div th:unless="${session.orderSession != null and session.orderSession.order != null}">
           <p>Twój koszyk jest pusty</p>
         </div>
@@ -125,6 +154,11 @@
 
 <div layout:fragment="scripts">
   <script>
+    document.getElementById('loyaltyPoints').addEventListener('input', function () {
+      if (this.value < 0) {
+        this.value = 0;
+      }
+    });
     document.addEventListener('DOMContentLoaded', function() {
       const applyPromoCodeBtn = document.getElementById('applyPromoCode');
       const applyPointsBtn = document.getElementById('applyPoints');

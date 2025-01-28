@@ -3,15 +3,13 @@ package com.example.shop_order.controller;
 import com.example.shop_order.DTOs.*;
 import com.example.shop_order.entity.Customer;
 import com.example.shop_order.entity.Order;
-import com.example.shop_order.entity.OrderItem;
-import com.example.shop_order.entity.Product;
 import com.example.shop_order.enums.CustomerType;
 import com.example.shop_order.enums.DeliveryType;
 import com.example.shop_order.enums.PaymentType;
 import com.example.shop_order.exceptions.InsufficientPointsException;
 import com.example.shop_order.exceptions.InvalidPromoCodeException;
-import com.example.shop_order.model.Address;
 import com.example.shop_order.service.CustomerService;
+import com.example.shop_order.service.DataInitializationService;
 import com.example.shop_order.service.DeliveryService;
 import com.example.shop_order.service.OrderService;
 import lombok.Data;
@@ -20,16 +18,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+/**
+    * Controller for handling order process
+ *
+ */
 
 @Controller
 @RequestMapping("/order")
@@ -40,17 +42,29 @@ public class OrderController {
     private final OrderService orderService;
     private final DeliveryService deliveryService;
     private final CustomerService customerService;
+    private final DataInitializationService dataInitializationService;
 
-
+    /**
+     * Controller constructor
+     * @param orderService
+     * @param deliveryService
+     * @param customerService
+     * @param dataInitializationService
+     */
     @Autowired
     public OrderController(OrderService orderService,
                            DeliveryService deliveryService,
-                           CustomerService customerService) {
+                           CustomerService customerService, DataInitializationService dataInitializationService) {
         this.orderService = orderService;
         this.deliveryService = deliveryService;
         this.customerService = customerService;
+        this.dataInitializationService = dataInitializationService;
     }
 
+    /**
+     * Method returning available delivery dates
+     * @return list of available delivery dates
+     */
     @ModelAttribute("availableDates")
     public List<LocalDateTime> getAvailableDates() {
         List<LocalDateTime> dates = deliveryService.getAvailableDeliveryDates();
@@ -62,121 +76,176 @@ public class OrderController {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Method returning new OrderSession
+     * @return new OrderSession
+     */
     @ModelAttribute("orderSession")
     public OrderSession orderSession() {
         OrderSession orderSession = new OrderSession();
-        Order order = new Order();
-
-        // Symulujemy produkty
-        Product sofa = new Product();
-        sofa.setId(1L);
-        sofa.setName("Sofa narożna PORTO");
-        sofa.setPrice(2499.99);
-        sofa.setLargeItem(false);
-
-        Product table = new Product();
-        table.setId(2L);
-        table.setName("Stolik kawowy MILANO");
-        table.setPrice(399.99);
-        table.setLargeItem(false);
-
-        Product lamp = new Product();
-        lamp.setId(3L);
-        lamp.setName("Lampa podłogowa LED");
-        lamp.setPrice(299.99);
-        lamp.setLargeItem(false);
-
-        // Tworzymy OrderItems
-        List<OrderItem> items = new ArrayList<>();
-
-        OrderItem sofaItem = new OrderItem();
-        sofaItem.setProduct(sofa);
-        sofaItem.setQuantity(1);
-        sofaItem.setPrice(sofa.getPrice());
-        sofaItem.setTotalPrice(sofa.getPrice() * sofaItem.getQuantity());
-        items.add(sofaItem);
-
-        OrderItem tableItem = new OrderItem();
-        tableItem.setProduct(table);
-        tableItem.setQuantity(2);
-        tableItem.setPrice(table.getPrice());
-        tableItem.setTotalPrice(table.getPrice() * tableItem.getQuantity());
-        items.add(tableItem);
-
-        OrderItem lampItem = new OrderItem();
-        lampItem.setProduct(lamp);
-        lampItem.setQuantity(3);
-        lampItem.setPrice(lamp.getPrice());
-        lampItem.setTotalPrice(lamp.getPrice() * lampItem.getQuantity());
-        items.add(lampItem);
-
-        // Ustawiamy podstawowe dane zamówienia
-        order.setItems(items);
-        order.setSubtotal(items.stream().mapToDouble(OrderItem::getTotalPrice).sum());
-        order.setDeliveryCost(0.0);
-        order.setDiscount(0.0);
-        order.setHomeDelivery(false);
-
-        orderSession.setOrder(order);
-        orderSession.setCustomerType(CustomerType.INDIVIDUAL);
-
         log.debug("Created new OrderSession with items: {}", orderSession);
         return orderSession;
     }
 
+    /**
+     * Method simulating order
+     * @param scenario
+     * @param orderSession
+     * @return redirect to order type
+     */
+    @GetMapping("/simulate/{scenario}")
+    public String simulateOrder(@PathVariable String scenario,
+                                @ModelAttribute("orderSession") OrderSession orderSession) {
+        Order order;
+        Customer customer;
+
+        switch (scenario) {
+            case "small" -> {
+                // scenariusz 1 - klient indywidualny, małe gabaryty
+                customer = customerService.findByEmail("jan.kowalski@example.com")
+                        .orElseThrow(() -> new RuntimeException("Customer not found"));
+                order = dataInitializationService.createSmallItemsOrder(customer);
+                orderSession.setCustomerType(CustomerType.INDIVIDUAL);
+            }
+            case "large" -> {
+                // scenariusz 2: klient firmowy, duże gabaryty
+                customer = customerService.findByEmail("firma@example.com")
+                        .orElseThrow(() -> new RuntimeException("Customer not found"));
+                order = dataInitializationService.createLargeItemsOrder(customer);
+                orderSession.setCustomerType(CustomerType.COMPANY);
+            }
+            case "testSmall" -> {
+                // scenariusz 3: testowy, małe gabaryty
+                customer = new Customer();
+                customer.setLoyaltyPoints(200);
+                order = dataInitializationService.createSmallItemsOrder(customer);
+                orderSession.setCustomerType(CustomerType.INDIVIDUAL);
+            }
+            default -> {
+                return "redirect:/order/type";
+            }
+        }
+
+        orderSession.setOrder(order);
+        return "redirect:/order/type";
+    }
+
+    /**
+     * Method showing customer type selection
+     * @param model
+     * @param orderSession
+     * @return customer type selection view
+     */
     @GetMapping("/type")
     public String showCustomerTypeSelection(Model model, @ModelAttribute("orderSession") OrderSession orderSession) {
         if (orderSession.getOrder() == null) {
             orderSession.setOrder(new Order());
         }
+
         model.addAttribute("customerTypes", CustomerType.values());
         return "order/customer-type";
     }
 
+
+    /**
+     * Method processing customer type selection
+     * @param type
+     * @param session
+     * @return redirect to order details
+     */
     @PostMapping("/type")
     public String processCustomerType(@RequestParam CustomerType type,
                                       @ModelAttribute("orderSession") OrderSession session) {
-        log.debug("Received customer type: {}", type);  // dodaj to
-        log.debug("Current session before update: {}", session);  // i to
         session.setCustomerType(type);
-        log.debug("Session after update: {}", session);  // i to
+        if (session.getOrder() != null && session.getOrder().getCustomer() != null) {
+            session.getOrder().getCustomer().setType(type);
+        }
+
         return "redirect:/order/details";
     }
 
+
+    /**
+     * Method showing customer form (individual or company)
+     * @param session
+     * @param model
+     * @return customer form view
+     */
     @GetMapping("/details")
     public String showCustomerForm(@ModelAttribute("orderSession") OrderSession session,
                                    Model model) {
-        CustomerForm form = session.getCustomerType() == CustomerType.COMPANY ?
-                new CompanyCustomerForm() : new IndividualCustomerForm();
+        CustomerForm form;
+
+        if (session.getOrder() != null && session.getOrder().getCustomer() != null) {
+            form = customerService.createFormFromCustomer(session.getOrder().getCustomer());
+        } else {
+            if (session.getCustomerType() == CustomerType.COMPANY) {
+                form = new CompanyCustomerForm();
+            } else {
+                form = new IndividualCustomerForm();
+            }
+        }
+
         model.addAttribute("customerForm", form);
+        model.addAttribute("formType", form.getClass().getSimpleName());
+
         return "order/customer-details";
     }
 
+
+    /**
+     * Method processing customer form
+     * @param request
+     * @param session
+     * @return redirect to order delivery
+     */
     @PostMapping("/details")
-    public String processCustomerForm(@ModelAttribute("customerForm") CustomerForm form,
-                                      BindingResult result,
+    public String processCustomerForm(HttpServletRequest request,
                                       @ModelAttribute("orderSession") OrderSession session) {
-        if (result.hasErrors()) {
-            return "order/customer-details";
+        CustomerForm form;
+
+        if (session.getCustomerType() == CustomerType.COMPANY) {
+            CompanyCustomerForm companyForm = new CompanyCustomerForm();
+            companyForm.setCompanyName(request.getParameter("companyName"));
+            companyForm.setNip(request.getParameter("nip"));
+            companyForm.setRegon(request.getParameter("regon"));
+            form = companyForm;
+        } else {
+            IndividualCustomerForm individualForm = new IndividualCustomerForm();
+            individualForm.setFirstName(request.getParameter("firstName"));
+            individualForm.setLastName(request.getParameter("lastName"));
+            form = individualForm;
         }
 
-
-        Customer customer = customerService.createCustomer(form, session.getCustomerType());
-        session.getOrder().setCustomer(customer);
-        System.out.println("customer: " + customer);
-
-        return "redirect:/order/delivery";
+        form.setEmail(request.getParameter("email"));
+        form.setPhoneNumber(request.getParameter("phoneNumber"));
+        customerService.findByEmail(form.getEmail())
+                .ifPresent(existingCustomer -> {
+                    form.setLoyaltyPoints(existingCustomer.getLoyaltyPoints());
+                });
+        try {
+            Customer customer = customerService.createCustomer(form, session.getCustomerType());
+            session.getOrder().setCustomer(customer);
+            return "redirect:/order/delivery";
+        } catch (Exception e) {
+            return "redirect:/order/details";
+        }
     }
 
+
+    /**
+     * Method showing delivery options
+     * @param session
+     * @param model
+     * @return delivery options view
+     */
     @GetMapping("/delivery")
     public String showDeliveryOptions(@ModelAttribute("orderSession") OrderSession session,
                                       Model model) {
-        // Sprawdź czy order istnieje
         if (session.getOrder() == null) {
             session.setOrder(new Order());
         }
 
-        // Dodaj formularz dostawy do modelu jeśli nie istnieje
         if (session.getDeliveryForm() == null) {
             session.setDeliveryForm(new DeliveryForm());
         }
@@ -193,6 +262,13 @@ public class OrderController {
         return "order/delivery";
     }
 
+
+    /**
+     * Method processing delivery options
+     * @param deliveryForm
+     * @param orderSession
+     * @return redirect to order payment
+     */
     @PostMapping("/delivery")
     public String processDelivery(@ModelAttribute("deliveryForm") DeliveryForm deliveryForm,
                                   @ModelAttribute("orderSession") OrderSession orderSession) {
@@ -201,12 +277,15 @@ public class OrderController {
             return "redirect:/order/type";
         }
 
-        // Kopiujemy dane z formularza do ordera
-        order.setDeliveryAddress(deliveryForm.getDeliveryAddress()); // Zakładając, że Order też używa klasy Address
+        order.setDeliveryAddress(deliveryForm.getDeliveryAddress());
         order.setDeliveryType(deliveryForm.getDeliveryType());
         order.setHomeDelivery(deliveryForm.isHomeDelivery());
         order.setDeliveryDate(deliveryForm.getDeliveryDate());
         order.setPhone(deliveryForm.getPhone());
+
+        // Ustawiamy koszt dostawy w zależności od typu
+        double deliveryCost = deliveryService.calculateDeliveryCost(order);
+        order.setDeliveryCost(deliveryCost);
 
         // Zapisujemy punkt odbioru w zależności od typu dostawy
         if (deliveryForm.getDeliveryType() == DeliveryType.INPOST) {
@@ -215,44 +294,64 @@ public class OrderController {
             order.setPickupPoint(deliveryForm.getPickupPoint());
         }
 
-        // Możesz dodać logowanie, żeby sprawdzić czy dane są poprawnie zapisywane
-        System.out.println("Delivery Address: " + order.getDeliveryAddress());
-        System.out.println("Delivery Type: " + order.getDeliveryType());
-        System.out.println("Home Delivery: " + order.isHomeDelivery());
+        order.calculateTotal();
+        log.debug("Ustawiono dostawę - typ: {}, koszt: {}", order.getDeliveryType(), order.getDeliveryCost());
 
-        return "redirect:/order/summary";
+        return "redirect:/order/payment";
     }
 
+
+    /**
+     * Method applying promo code
+     * @param code
+     * @param session
+     * @return response with information about promo code application
+     */
     @PostMapping("/apply-promo")
     @ResponseBody
     public ResponseEntity<?> applyPromoCode(@RequestParam String code,
                                             @ModelAttribute("orderSession") OrderSession session) {
         try {
-            orderService.applyPromoCode(session.getOrder(), code);
+            orderService.applyPromoCode(session.getOrder(), session, code);
             return ResponseEntity.ok()
                     .body(Map.of("message", "Kod rabatowy został zastosowany"));
         } catch (InvalidPromoCodeException e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         }
-
     }
 
+    /**
+     * Method applying loyalty points
+     * @param points
+     * @param session
+     * @return response with information about loyalty points application
+     */
     @PostMapping("/apply-points")
     @ResponseBody
     public ResponseEntity<?> applyLoyaltyPoints(@RequestParam Integer points,
                                                 @ModelAttribute("orderSession") OrderSession session) {
         try {
             orderService.applyLoyaltyPoints(session.getOrder(), points);
+            // Po naliczeniu punktów przelicz sumę
+            session.getOrder().calculateTotal();
+
             return ResponseEntity.ok(Map.of(
                     "message", "Punkty zostały naliczone",
-                    "remainingPoints", session.getOrder().getCustomer().getLoyaltyPoints()
+                    "remainingPoints", session.getOrder().getCustomer().getLoyaltyPoints(),
+                    "total", session.getOrder().getTotal() // dodaj aktualną sumę do odpowiedzi
             ));
         } catch (InsufficientPointsException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
+    /**
+     * Method showing order summary
+     * @param session
+     * @param model
+     * @return order summary view
+     */
     @GetMapping("/summary")
     public String showOrderSummary(@ModelAttribute("orderSession") OrderSession session,
                                    Model model) {
@@ -277,6 +376,11 @@ public class OrderController {
         return "order/summary";
     }
 
+    /**
+     * Method confirming order
+     * @param session
+     * @return redirect to order success
+     */
     @PostMapping("/summary")
     public String confirmOrder(@ModelAttribute("orderSession") OrderSession session) {
         Order order = session.getOrder();
@@ -284,9 +388,15 @@ public class OrderController {
             return "redirect:/order/type";
         }
 
-        return "redirect:/order/payment";
+        return "redirect:/order/success";
     }
 
+    /**
+     * Method showing payment options
+        * @param session
+     * @param model
+     * @return payment options view
+     */
     @GetMapping("/payment")
     public String showPaymentOptions(@ModelAttribute("orderSession") OrderSession session,
                                      Model model) {
@@ -299,37 +409,55 @@ public class OrderController {
         Integer availablePoints = 0;
         if (session.getOrder().getCustomer() != null) {
             availablePoints = session.getOrder().getCustomer().getLoyaltyPoints();
+            System.out.println("available points: " + availablePoints);
         }
         model.addAttribute("availablePoints", availablePoints);
 
         // Dodaj typy płatności
         model.addAttribute("paymentTypes", PaymentType.values());
 
+        if (session.getOrder() == null) {
+            return "redirect:/order/type";
+        }
         return "order/payment";
     }
 
+    /**
+     * Method processing payment
+     * @param paymentType
+     * @param session
+     * @return redirect to order summary
+     */
     @PostMapping("/payment")
     public String processPayment(@RequestParam PaymentType paymentType,
                                  @ModelAttribute("orderSession") OrderSession session) {
         Order order = session.getOrder();
         orderService.processPayment(order, paymentType);
-
-//        // Symulacja przekierowania do zewnętrznego systemu płatności
-//        if (paymentService.initiatePayment(order)) {
-//            return "redirect:/order/payment-success";
-//        } else {
-//            return "redirect:/order/payment-failure";
-//        }
-        return "redirect:/order/success";
+        return "redirect:/order/summary";
     }
 
+    /**
+     * Method showing payment success information
+     * @param session
+     * @param model
+     * @return payment success view
+     */
     @GetMapping("/success")
-    public String handlePaymentSuccess(@ModelAttribute("orderSession") OrderSession session) {
+    public String handlePaymentSuccess(
+            @ModelAttribute("orderSession") OrderSession session,
+            Model model) {
+
         Order order = session.getOrder();
         orderService.completeOrder(order);
+        model.addAttribute("order", order);
+
         return "order/success";
     }
 
+    /**
+     * Method showing payment failure information
+     * @return payment failure view
+     */
     @GetMapping("/payment-failure")
     public String handlePaymentFailure() {
         return "order/failure";

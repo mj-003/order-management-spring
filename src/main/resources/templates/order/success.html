@@ -13,13 +13,12 @@
 
     <div class="alert alert-success w-75 mx-auto my-4">
       <p>Na Twój adres email został wysłany
-<!--        <span th:text="${order.customer.type == T(com.example.enums.CustomerType).COMPANY ?-->
-<!--                                 'faktura' : 'paragon'}">-->
-<!--                   </span>-->
-<!--        oraz potwierdzenie zamówienia.-->
+        <span th:text="${order.customer.type == T(com.example.shop_order.enums.CustomerType).COMPANY ?
+                                 'faktura' : 'paragon'}">
+                   </span>
+        oraz potwierdzenie zamówienia.
       </p>
-      <p class="mb-0">Numer Twojego zamówienia:
-<!--        <strong th:text="${order.id}"></strong>-->
+      <p class="mb-0">Zamówienie możesz śledzić w swoim koncie.
       </p>
     </div>
 

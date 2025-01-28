@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import com.example.shop_order.model.Address;
 
+/**
+ * Entity class for order
+ */
 @Entity
 @Data
 @Table(name = "orders")
@@ -46,7 +49,8 @@ public class Order implements Serializable {
     private Double subtotal;
 
     private Double deliveryCost;
-    private Double discount;
+    private Double discount = 0.0;
+
 
     private String promoCode;
     private Integer usedLoyaltyPoints;
@@ -62,8 +66,7 @@ public class Order implements Serializable {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-
-
+    private double total;
 
     public void setStatus(OrderStatus orderStatus) {
         this.status = orderStatus;
@@ -109,6 +112,10 @@ public String toString() {
 
     public Boolean isHomeDelivery() {
         return homeDelivery;
+    }
+
+    public void calculateTotal() {
+        this.total = this.subtotal + this.deliveryCost - this.discount;
     }
 }
 

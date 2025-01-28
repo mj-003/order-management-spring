@@ -3,7 +3,9 @@ package com.example.shop_order.DTOs;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-
+/**
+ * DTO class for individual customer form
+ */
 @Data
 public class IndividualCustomerForm extends CustomerForm {
     @NotBlank(message = "Imię jest wymagane")

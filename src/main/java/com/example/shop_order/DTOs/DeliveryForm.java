@@ -9,6 +9,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 
+/**
+ * DTO class for delivery form
+ */
 @Data
 public class DeliveryForm {
     @NotNull
@@ -16,22 +19,18 @@ public class DeliveryForm {
 
     private Boolean homeDelivery = false;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime deliveryDate;
 
     @Valid
     private Address deliveryAddress;
 
-    // Nowe pola dla paczkomatu i punktu odbioru
     private String inpostPoint;
     private String pickupPoint;
 
-    // Pole na numer telefonu (można dodać do głównego formularza zamiast do Address)
     private String phone;
 
     public Boolean isHomeDelivery() {
         return homeDelivery;
     }
-
-
 }

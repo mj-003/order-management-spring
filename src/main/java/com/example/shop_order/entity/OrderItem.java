@@ -1,10 +1,13 @@
 package com.example.shop_order.entity;
+
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+
+/**
+ * Entity class for order items
+ */
 @Entity
 @Data
 @Table(name = "order_items")
@@ -13,8 +16,9 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id")
     private Order order;
 
     @ManyToOne
@@ -29,7 +33,6 @@ public class OrderItem {
 
     private Boolean isLargeItem;
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

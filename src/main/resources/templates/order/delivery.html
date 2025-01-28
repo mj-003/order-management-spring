@@ -18,6 +18,7 @@
                    th:if="${!hasLargeItems}">
                 <input class="form-check-input" type="radio"
                        th:field="*{deliveryType}"
+                       th:checked="${!hasLargeItems}"
                        value="COURIER" id="courier">
                 <label class="form-check-label w-100" for="courier">
                   <div class="d-flex justify-content-between">
@@ -32,6 +33,7 @@
                    th:if="${hasLargeItems}">
                 <input class="form-check-input" type="radio"
                        th:field="*{deliveryType}"
+                       th:checked="${hasLargeItems}"
                        value="LARGE_COURIER" id="largeCourier">
                 <label class="form-check-label w-100" for="largeCourier">
                   <div class="d-flex justify-content-between">
@@ -74,11 +76,11 @@
               <h3>Dane do wysyłki</h3>
               <div class="mb-3">
                 <label for="street" class="form-label">Ulica</label>
-                <input type="text" class="form-control" id="street" th:field="*{deliveryAddress.street}">
+                <input type="text" class="form-control" id="street" th:field="*{deliveryAddress.street}" required>
               </div>
               <div class="mb-3">
                 <label for="buildingNumber" class="form-label">Numer budynku</label>
-                <input type="text" class="form-control" id="buildingNumber" th:field="*{deliveryAddress.buildingNumber}">
+                <input type="text" class="form-control" id="buildingNumber" th:field="*{deliveryAddress.buildingNumber}" required>
               </div>
               <div class="mb-3">
                 <label for="apartmentNumber" class="form-label">Numer mieszkania</label>
@@ -86,35 +88,34 @@
               </div>
               <div class="mb-3">
                 <label for="postalCode" class="form-label">Kod pocztowy</label>
-                <input type="text" class="form-control" id="postalCode" th:field="*{deliveryAddress.postalCode}">
+                <input type="text" class="form-control" id="postalCode" th:field="*{deliveryAddress.postalCode}" required>
               </div>
               <div class="mb-3">
                 <label for="city" class="form-label">Miejscowość</label>
-                <input type="text" class="form-control" id="city" th:field="*{deliveryAddress.city}">
+                <input type="text" class="form-control" id="city" th:field="*{deliveryAddress.city}" required>
               </div>
               <div class="mb-3">
                 <label for="phone" class="form-label">Telefon kontaktowy</label>
-                <input type="tel" class="form-control" id="phone" th:field="*{phone}">
+                <input type="tel" class="form-control" id="phone" th:field="*{phone}" required>
               </div>
             </div>
-
 
             <!-- Wybór paczkomatu -->
             <div id="inpostSelection" class="delivery-details mb-4" style="display: none;">
               <h3>Wybierz paczkomat</h3>
               <div class="mb-3">
-                <label for="phone" class="form-label">Telefon kontaktowy</label>
-                <input type="tel" class="form-control" id="phone" th:field="*{phone}">
+                <label for="inpostPhone" class="form-label">Telefon kontaktowy</label>
+                <input type="tel" class="form-control" id="inpostPhone" th:field="*{phone}" required>
                 <label for="inpostSearch"></label><input type="text" class="form-control mb-2" id="inpostSearch"
                                                          placeholder="Wpisz kod pocztowy lub nazwę ulicy...">
-                <label for="inpostPoint"></label><select class="form-select" id="inpostPoint" name="inpostPoint" th:field="*{inpostPoint}">
-                  <option value="">Wybierz paczkomat</option>
-                  <option value="WAW123">Warszawa, ul. Marszałkowska 123 (WAW123)</option>
-                  <option value="WAW234">Warszawa, ul. Puławska 234 (WAW234)</option>
-                  <option value="WAW345">Warszawa, ul. Jana Pawła II 345 (WAW345)</option>
-                  <option value="WAW456">Warszawa, ul. Świętokrzyska 456 (WAW456)</option>
-                  <option value="WAW567">Warszawa, ul. Targowa 567 (WAW567)</option>
-                </select>
+                <label for="inpostPoint"></label><select class="form-select" id="inpostPoint" name="inpostPoint" th:field="*{inpostPoint}" required>
+                <option value="">Wybierz paczkomat</option>
+                <option value="WAW123">Warszawa, ul. Marszałkowska 123 (WAW123)</option>
+                <option value="WAW234">Warszawa, ul. Puławska 234 (WAW234)</option>
+                <option value="WAW345">Warszawa, ul. Jana Pawła II 345 (WAW345)</option>
+                <option value="WAW456">Warszawa, ul. Świętokrzyska 456 (WAW456)</option>
+                <option value="WAW567">Warszawa, ul. Targowa 567 (WAW567)</option>
+              </select>
               </div>
             </div>
 
@@ -122,7 +123,7 @@
             <div id="pickupPointSelection" class="delivery-details mb-4" style="display: none;">
               <h3>Wybierz punkt odbioru</h3>
               <div class="mb-3">
-                <select class="form-select" id="pickupPoint" name="pickupPoint" th:field="*{pickupPoint}">
+                <select class="form-select" id="pickupPoint" name="pickupPoint" th:field="*{pickupPoint}" required>
                   <option value="">Wybierz sklep</option>
                   <option value="SHOP1">Warszawa Centrum - Złote Tarasy</option>
                   <option value="SHOP2">Warszawa Mokotów - Galeria Mokotów</option>
@@ -150,6 +151,7 @@
             </div>
 
             <!-- Kalendarz dostawy (dla wniesienia do domu) -->
+            <!-- Kalendarz dostawy -->
             <div id="deliveryCalendar" class="mb-4" style="display: none;">
               <h3>Wybierz termin dostawy</h3>
               <div class="row">
@@ -161,12 +163,12 @@
                   </div>
                 </div>
               </div>
-              <label for="selectedDate"></label><input type="text"
-                                                       th:field="*{deliveryDate}"
-                                                       id="selectedDate"
-                                                       readonly
-                                                       class="form-control"
-                                                       placeholder="Wybierz datę dostawy klikając w jeden z powyższych terminów">
+              <input type="text"
+                     th:field="*{deliveryDate}"
+                     id="selectedDate"
+                     readonly
+                     class="form-control"
+                     placeholder="Wybierz datę dostawy klikając w jeden z powyższych terminów">
             </div>
 
             <div class="d-flex justify-content-between">
@@ -216,9 +218,8 @@
       const courierAddressForm = document.getElementById('courierAddressForm');
       const inpostSelection = document.getElementById('inpostSelection');
       const pickupPointSelection = document.getElementById('pickupPointSelection');
-      const inpostSearch = document.getElementById('inpostSearch');
 
-      // Delivery costs configuration
+      // Configuration objects
       const deliveryCosts = {
         COURIER: 12.99,
         LARGE_COURIER: 29.99,
@@ -227,7 +228,6 @@
         HOME_DELIVERY: 120.99
       };
 
-      // Input validation patterns
       const inputValidation = {
         phone: {
           pattern: '[0-9]{9}',
@@ -241,73 +241,20 @@
         }
       };
 
-      // Get initial order total from the summary section
-      const getSubtotal = () => {
-        const subtotalElement = document.querySelector('.right-summary strong:last-child');
-        if (subtotalElement) {
-          return parseFloat(subtotalElement.textContent.replace(' zł', ''));
-        }
-        return 0;
-      };
+      // Setup delivery date selection
+      document.querySelectorAll('.delivery-date').forEach(dateCard => {
+        dateCard.addEventListener('click', function() {
+          document.querySelectorAll('.delivery-date').forEach(card => {
+            card.classList.remove('bg-warning', 'text-white');
+          });
+          this.classList.add('bg-warning', 'text-white');
 
-      // Update order summary
-      function updateOrderSummary() {
-        const summaryContainer = document.querySelector('.right-summary');
-        if (!summaryContainer) return;
-
-        const subtotal = getSubtotal();
-        let deliveryCost = 0;
-
-        // Calculate delivery cost based on selected option
-        if (courierRadio?.checked) {
-          deliveryCost = deliveryCosts.COURIER;
-        } else if (largeCourierRadio?.checked) {
-          deliveryCost = deliveryCosts.LARGE_COURIER;
-          if (homeDeliveryCheckbox?.checked) {
-            deliveryCost += deliveryCosts.HOME_DELIVERY;
-          }
-        } else if (inpostRadio?.checked) {
-          deliveryCost = deliveryCosts.INPOST;
-        }
-
-        // Update or create delivery cost row
-        let deliveryRow = summaryContainer.querySelector('.delivery-cost-row');
-        if (!deliveryRow) {
-          deliveryRow = document.createElement('div');
-          deliveryRow.className = 'delivery-cost-row d-flex justify-content-between mt-2';
-          const lastHr = summaryContainer.querySelector('hr');
-          if (lastHr) {
-            lastHr.insertAdjacentElement('beforebegin', deliveryRow);
-          }
-        }
-
-        // Update delivery cost display
-        if (deliveryCost > 0) {
-          deliveryRow.innerHTML = `
-        <span>Koszt dostawy:</span>
-        <span>${deliveryCost.toFixed(2)} zł</span>
-      `;
-          deliveryRow.style.display = 'flex';
-        } else {
-          deliveryRow.style.display = 'none';
-        }
-
-        // Update total
-        const total = subtotal + deliveryCost;
-
-        // Update or create total row
-        let totalRow = summaryContainer.querySelector('.total-row');
-        if (!totalRow) {
-          totalRow = document.createElement('div');
-          totalRow.className = 'total-row d-flex justify-content-between mt-2';
-          summaryContainer.appendChild(totalRow);
-        }
-
-        totalRow.innerHTML = `
-      <strong>Suma:</strong>
-      <strong>${total.toFixed(2)} zł</strong>
-    `;
-      }
+          const dateStr = this.getAttribute('data-date');
+          const date = new Date(dateStr);
+          const formattedDate = date.toISOString().split('.')[0];
+          selectedDateInput.value = formattedDate;
+        });
+      });
 
       // Setup postal code input formatting
       const postalCodeInput = document.getElementById('postalCode');
@@ -331,51 +278,126 @@
         });
       });
 
-      function updateDeliveryFormVisibility() {
-        // Hide all forms first
-        courierAddressForm.style.display = 'none';
-        inpostSelection.style.display = 'none';
-        pickupPointSelection.style.display = 'none';
+      function updateOrderSummary() {
+        const summaryContainer = document.querySelector('.right-summary');
+        if (!summaryContainer) return;
 
-        // Remove required attributes from all inputs
-        document.querySelectorAll('.delivery-details input, .delivery-details select').forEach(input => {
-          input.removeAttribute('required');
-        });
+        const subtotalElement = summaryContainer.querySelector('div strong:contains("Wartość produktów:")');
+        const subtotal = subtotalElement ?
+                parseFloat(subtotalElement.nextElementSibling.textContent.replace(' zł', '')) : 0;
 
-        // Show and set required fields based on delivery type
-        if (courierRadio?.checked || largeCourierRadio?.checked) {
-          courierAddressForm.style.display = 'block';
-          document.querySelectorAll('#courierAddressForm input').forEach(input => {
-            input.setAttribute('required', '');
+        let deliveryCost = 0;
+        const selectedDeliveryType = document.querySelector('input[name="deliveryType"]:checked');
 
-            // Add specific validations
-            if (input.id === 'phone') {
-              input.setAttribute('pattern', inputValidation.phone.pattern);
-              input.setAttribute('maxlength', inputValidation.phone.maxLength);
-            } else if (input.id === 'postalCode') {
-              input.setAttribute('pattern', inputValidation.postalCode.pattern);
-              input.setAttribute('maxlength', inputValidation.postalCode.maxLength);
-            }
-          });
-        } else if (inpostRadio?.checked) {
-          inpostSelection.style.display = 'block';
-          document.getElementById('inpostPoint').setAttribute('required', '');
-          const inpostPhone = inpostSelection.querySelector('input[type="tel"]');
-          if (inpostPhone) {
-            inpostPhone.setAttribute('required', '');
+        if (selectedDeliveryType) {
+          switch (selectedDeliveryType.value) {
+            case 'COURIER':
+              deliveryCost = deliveryCosts.COURIER;
+              break;
+            case 'LARGE_COURIER':
+              deliveryCost = deliveryCosts.LARGE_COURIER;
+              if (homeDeliveryCheckbox?.checked) {
+                deliveryCost += deliveryCosts.HOME_DELIVERY;
+              }
+              break;
+            case 'INPOST':
+              deliveryCost = deliveryCosts.INPOST;
+              break;
+            case 'PICKUP':
+              deliveryCost = deliveryCosts.PICKUP;
+              break;
           }
-        } else if (pickupRadio?.checked) {
-          pickupPointSelection.style.display = 'block';
-          document.getElementById('pickupPoint').setAttribute('required', '');
         }
 
-        // Update order summary whenever delivery type changes
+        // Update or create delivery cost row
+        let deliveryRow = summaryContainer.querySelector('.delivery-cost-row');
+        if (!deliveryRow) {
+          deliveryRow = document.createElement('div');
+          deliveryRow.className = 'delivery-cost-row d-flex justify-content-between mb-2';
+          const totalRow = summaryContainer.querySelector('.total-row');
+          const lastHr = summaryContainer.querySelector('hr');
+          if (totalRow) {
+            totalRow.insertAdjacentElement('beforebegin', deliveryRow);
+          } else if (lastHr) {
+            lastHr.insertAdjacentElement('afterend', deliveryRow);
+          } else {
+            summaryContainer.appendChild(deliveryRow);
+          }
+        }
+
+        deliveryRow.innerHTML = `
+      <span>Koszt dostawy:</span>
+      <span>${deliveryCost.toFixed(2)} zł</span>
+    `;
+        deliveryRow.style.display = deliveryCost > 0 ? 'flex' : 'none';
+
+        // Update total
+        const total = subtotal + deliveryCost;
+        let totalRow = summaryContainer.querySelector('.total-row');
+        if (!totalRow) {
+          totalRow = document.createElement('div');
+          totalRow.className = 'total-row d-flex justify-content-between mt-2';
+          summaryContainer.appendChild(totalRow);
+        }
+
+        totalRow.innerHTML = `
+      <strong>Suma:</strong>
+      <strong>${total.toFixed(2)} zł</strong>
+    `;
+      }
+
+      function updateDeliveryFormVisibility() {
+        // Hide all forms first
+        [courierAddressForm, inpostSelection, pickupPointSelection, homeDeliveryOption, deliveryCalendar]
+                .forEach(form => {
+                  if (form) form.style.display = 'none';
+                });
+
+        // Remove required attributes
+        document.querySelectorAll('.delivery-details input, .delivery-details select')
+                .forEach(input => input.removeAttribute('required'));
+
+        // Show appropriate form based on selection
+        if ((courierRadio?.checked) || (largeCourierRadio?.checked)) {
+          if (courierAddressForm) {
+            courierAddressForm.style.display = 'block';
+            document.querySelectorAll('#courierAddressForm input').forEach(input => {
+              if (input.id !== 'apartmentNumber') {
+                input.setAttribute('required', '');
+              }
+            });
+          }
+
+          // Show home delivery option for large courier
+          if (largeCourierRadio?.checked && homeDeliveryOption) {
+            homeDeliveryOption.style.display = 'block';
+            if (homeDeliveryCheckbox?.checked && deliveryCalendar) {
+              deliveryCalendar.style.display = 'block';
+              selectedDateInput?.setAttribute('required', '');
+            }
+          }
+        } else if (inpostRadio?.checked && inpostSelection) {
+          inpostSelection.style.display = 'block';
+          document.getElementById('inpostPoint')?.setAttribute('required', '');
+          inpostSelection.querySelector('input[type="tel"]')?.setAttribute('required', '');
+        } else if (pickupRadio?.checked && pickupPointSelection) {
+          pickupPointSelection.style.display = 'block';
+          document.getElementById('pickupPoint')?.setAttribute('required', '');
+        }
+
         updateOrderSummary();
       }
 
       function validateForm(event) {
         let isValid = true;
         const errorMessages = [];
+
+        // Validate delivery type selection
+        const deliveryTypeSelected = document.querySelector('input[name="deliveryType"]:checked');
+        if (!deliveryTypeSelected) {
+          isValid = false;
+          errorMessages.push('Proszę wybrać sposób dostawy');
+        }
 
         // Validate courier address form
         if (courierRadio?.checked || largeCourierRadio?.checked) {
@@ -399,7 +421,7 @@
           const inpostPoint = document.getElementById('inpostPoint');
           const inpostPhone = inpostSelection.querySelector('input[type="tel"]');
 
-          if (!inpostPoint.value) {
+          if (!inpostPoint?.value) {
             isValid = false;
             errorMessages.push('Proszę wybrać paczkomat');
           }
@@ -411,13 +433,13 @@
         }
 
         // Validate pickup point selection
-        if (pickupRadio?.checked && !document.getElementById('pickupPoint').value) {
+        if (pickupRadio?.checked && !document.getElementById('pickupPoint')?.value) {
           isValid = false;
           errorMessages.push('Proszę wybrać punkt odbioru');
         }
 
         // Validate home delivery date
-        if (largeCourierRadio?.checked && homeDeliveryCheckbox?.checked && !selectedDateInput.value) {
+        if (largeCourierRadio?.checked && homeDeliveryCheckbox?.checked && !selectedDateInput?.value) {
           isValid = false;
           errorMessages.push('Proszę wybrać datę dostawy');
         }
@@ -430,38 +452,53 @@
         return isValid;
       }
 
-      // Event Listeners
-      if (deliveryForm) {
-        deliveryForm.addEventListener('submit', validateForm);
+      // Set default delivery option
+      function setDefaultDeliveryOption() {
+        const hasLargeItems = document.querySelector('[value="LARGE_COURIER"]') !== null;
+        const isAnySelected = document.querySelector('input[name="deliveryType"]:checked');
+
+        if (!isAnySelected) {
+          if (hasLargeItems && largeCourierRadio) {
+            largeCourierRadio.checked = true;
+          } else if (!hasLargeItems) {
+            if (courierRadio) courierRadio.checked = true;
+            else if (inpostRadio) inpostRadio.checked = true;
+            else if (pickupRadio) pickupRadio.checked = true;
+          }
+        }
+
+        const selectedRadio = document.querySelector('input[name="deliveryType"]:checked');
+        if (selectedRadio) {
+          selectedRadio.dispatchEvent(new Event('change'));
+        }
       }
 
-      // Listen for delivery type changes
+      // Add event listeners
       document.querySelectorAll('input[name="deliveryType"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-          updateDeliveryFormVisibility();
-          updateOrderSummary();
-        });
+        radio.addEventListener('change', updateDeliveryFormVisibility);
       });
 
-      // Listen for home delivery option changes
       if (homeDeliveryCheckbox) {
         homeDeliveryCheckbox.addEventListener('change', () => {
-          if (homeDeliveryCheckbox.checked) {
-            selectedDateInput.setAttribute('required', '');
-          } else {
-            selectedDateInput.removeAttribute('required');
+          if (deliveryCalendar) {
+            deliveryCalendar.style.display = homeDeliveryCheckbox.checked ? 'block' : 'none';
+            if (selectedDateInput) {
+              homeDeliveryCheckbox.checked ?
+                      selectedDateInput.setAttribute('required', '') :
+                      selectedDateInput.removeAttribute('required');
+            }
           }
           updateOrderSummary();
         });
       }
 
-      // Initial setup
-      updateDeliveryFormVisibility();
-      updateOrderSummary();
+      if (deliveryForm) {
+        deliveryForm.addEventListener('submit', validateForm);
+      }
+
+      // Initialize the form
+      setDefaultDeliveryOption();
     });
-    </script>
-    </div>
-
-
+  </script>
+</div>
 </body>
-</html>

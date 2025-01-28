@@ -14,14 +14,13 @@
           <div class="mb-4">
             <h3>Twoje dane</h3>
             <div class="p-3 bg-light rounded">
-<!--              <div th:if="${session.orderSession.customerType == T(com.example.enums.CustomerType).COMPANY}">-->
-<!--                <p th:text="${order.customer.companyName}">Nazwa firmy</p>-->
-<!--                <p th:text="'NIP: ' + ${order.customer.nip}">NIP</p>-->
-<!--              </div>-->
-<!--              <div th:if="${session.orderSession.customerType == T(com.example.enums.CustomerType).INDIVIDUAL}">-->
-<!--                <p th:text="${order.customer.firstName + ' ' + order.customer.lastName}">Imię i nazwisko</p>-->
-<!--              </div>-->
+              <div th:if="${session.orderSession.customerType == T(com.example.shop_order.enums.CustomerType).COMPANY}">
+                <p th:text="${order.customer.companyName}">Nazwa firmy</p>
+                <p th:text="'NIP: ' + ${order.customer.nip}">NIP</p>
+              </div>
+              <div th:if="${session.orderSession.customerType == T(com.example.shop_order.enums.CustomerType).INDIVIDUAL}">
                 <p th:text="${order.customer.firstName + ' ' + order.customer.lastName}">Imię i nazwisko</p>
+              </div>
               <p th:text="${order.customer.email}">Email</p>
               <p th:text="${order.customer.phoneNumber}">Telefon</p>
             </div>
@@ -33,7 +32,7 @@
             <div class="p-3 bg-light rounded">
               <p th:text="${order.deliveryAddress.street + ' ' +
                                             order.deliveryAddress.buildingNumber +
-                                            (order.deliveryAddress.apartmentNumber != null ? '/' +
+                                            (order.deliveryAddress.apartmentNumber != null ?
                                             order.deliveryAddress.apartmentNumber : '')}">Ulica</p>
               <p th:text="${order.deliveryAddress.postalCode + ' ' +
                                             order.deliveryAddress.city}">Kod i miasto</p>
@@ -62,7 +61,7 @@
       <div class="d-flex justify-content-between">
         <a th:href="@{/order/payment}" class="btn btn-outline-warning">COFNIJ</a>
         <button type="button" class="btn btn-warning"
-                onclick="window.location.href = '/order/finalize'">
+                onclick="window.location.href = '/order/success'">
           ZAPŁAĆ
         </button>
       </div>
@@ -104,9 +103,9 @@
           <!-- Suma -->
           <div class="d-flex justify-content-between mt-2">
             <strong>Do zapłaty:</strong>
-<!--            <strong class="text-danger"-->
-<!--                    th:text="${#numbers.formatDecimal(order.total, 1, 2)} + ' zł'">-->
-<!--            </strong>-->
+            <strong class="text-danger"
+                    th:text="${#numbers.formatDecimal(order.total, 1, 2)} + ' zł'">
+            </strong>
           </div>
         </div>
       </div>

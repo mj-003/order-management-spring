@@ -8,15 +8,21 @@ import javax.transaction.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+/**
+ * Service for delivery options. Provides available delivery options and dates, calculates delivery cost
+ */
 @Service
 @Transactional
 public class DeliveryService {
 
+    /**
+     * Returns available delivery options based on the presence of large items in the order
+     *
+     * @param hasLargeItems true if the order contains large items
+     * @return list of available delivery options
+     */
     public List<DeliveryType> getAvailableDeliveryOptions(boolean hasLargeItems) {
         List<DeliveryType> options = new ArrayList<>();
         options.add(DeliveryType.COURIER);
@@ -27,11 +33,15 @@ public class DeliveryService {
         return options;
     }
 
+    /**
+     * Returns available delivery dates for the next 7 days
+     *
+     * @return list of available delivery dates
+     */
     public List<LocalDateTime> getAvailableDeliveryDates() {
         List<LocalDateTime> dates = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
-        // Dodaj następne 7 dni jako dostępne daty
         for (int i = 1; i <= 7; i++) {
             dates.add(now.plusDays(i).withHour(12).withMinute(0));
         }
@@ -39,25 +49,31 @@ public class DeliveryService {
         return dates;
     }
 
+    /**
+     * Returns available delivery dates for the next 7 days excluding Sundays
+     *
+     * @return list of available delivery dates
+     */
     private boolean isWorkingDay(LocalDateTime date) {
         return date.getDayOfWeek() != DayOfWeek.SUNDAY;
     }
 
+    /**
+     * Calculates delivery cost based on the delivery type
+     *
+     * @param order order
+     * @return delivery cost
+     */
     public Double calculateDeliveryCost(Order order) {
-        if (order.getDeliveryType() == DeliveryType.PICKUP) {
-            return 10.0;
-        }
 
-        double baseCost = switch (order.getDeliveryType()) {
+        return switch (order.getDeliveryType()) {
             case COURIER -> 20.0;
             case INPOST -> 15.0;
+            case PICKUP -> 0.0;
+            case LARGE_COURIER -> 259.0;
             default -> 0.0;
         };
-
-        if (Boolean.TRUE.equals(order.getHomeDelivery())) {
-            baseCost = baseCost + 230.0;
-        }
-
-        return baseCost;
     }
+
+
 }

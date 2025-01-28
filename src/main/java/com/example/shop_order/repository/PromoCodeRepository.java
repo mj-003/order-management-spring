@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+/**
+ * Repository for promo code entity
+ */
 @Repository
 public interface PromoCodeRepository extends JpaRepository<PromoCode, Long> {
     Optional<PromoCode> findByCodeAndIsActiveTrue(String code);
@@ -17,6 +20,9 @@ public interface PromoCodeRepository extends JpaRepository<PromoCode, Long> {
             "AND p.isActive = true " +
             "AND p.validFrom <= :now " +
             "AND p.validTo >= :now")
+
     Optional<PromoCode> findValidPromoCode(@Param("code") String code,
                                            @Param("now") LocalDateTime now);
+
+    Optional<Object> findByCode(String code);
 }

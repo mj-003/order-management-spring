@@ -3,6 +3,9 @@ package com.example.shop_order.model;
 import lombok.Data;
 import javax.persistence.Embeddable;
 
+/**
+ * Address class
+ */
 @Embeddable
 @Data
 public class Address {
@@ -11,7 +14,5 @@ public class Address {
     private String apartmentNumber;
     private String postalCode;
     private String city;
-    private String phone; // Możesz też dodać telefon tutaj, jeśli wolisz
-
-
+    private String phone;
 }

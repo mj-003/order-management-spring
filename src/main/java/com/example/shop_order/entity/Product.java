@@ -2,6 +2,9 @@ package com.example.shop_order.entity;
 import lombok.Data;
 import javax.persistence.*;
 
+/**
+ * Entity class for products
+ */
 @Entity
 @Data
 @Table(name = "products")
@@ -10,7 +13,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false)
@@ -29,8 +32,6 @@ public class Product {
     public Product() {
 
     }
-
-    // Getters and setters
 
     public Long getId() {
         return id;
@@ -62,9 +63,6 @@ public class Product {
 
     public void setIsLargeItem(Boolean isLargeItem) {
         this.isLargeItem = isLargeItem;
-    }
-
-    public void setQuantity(int i) {
     }
 
     public void setLargeItem(boolean b) {

@@ -1,5 +1,8 @@
 package com.example.shop_order.enums;
 
+/**
+ * Enum for delivery type
+ */
 public enum DeliveryType {
     COURIER("Kurier"),
     LARGE_COURIER("Kurier (duże gabaryty)"),

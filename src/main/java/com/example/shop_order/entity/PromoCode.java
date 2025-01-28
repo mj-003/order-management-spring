@@ -3,6 +3,9 @@ import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Entity class for promo codes
+ */
 @Entity
 @Data
 @Table(name = "promo_codes")
@@ -20,4 +23,9 @@ public class PromoCode {
     private LocalDateTime validFrom;
     private LocalDateTime validTo;
     private Boolean isActive;
+
+    public boolean isValid() {
+        LocalDateTime now = LocalDateTime.now();
+        return isActive && validFrom.isBefore(now) && validTo.isAfter(now);
+    }
 }

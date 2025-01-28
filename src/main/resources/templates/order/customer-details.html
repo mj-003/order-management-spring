@@ -11,88 +11,81 @@
           <h2>Dane klienta</h2>
           <p class="text-muted">Pola oznaczone (*) są wymagane</p>
 
-          <form th:action="@{/order/details}" method="post"
-                th:object="${customerForm}">
+          <form th:action="@{/order/details}" method="post">
+            <!-- Debug info -->
+            <div class="d-none">
+              <p th:text="${formType}"></p>
+              <p th:text="${session.orderSession.customerType}"></p>
+            </div>
 
-            <!-- Pola dla firmy -->
-            <div th:if="${session.orderSession.customerType == T(com.example.shop_order.enums.CustomerType).COMPANY}">
+            <!-- Company fields -->
+            <div th:if="${formType == 'CompanyCustomerForm'}"
+                 th:with="companyForm=${customerForm}">
               <div class="mb-3">
                 <label class="form-label">Nazwa firmy *</label>
                 <input type="text" class="form-control"
-                       th:field="*{companyName}"
-                       th:classappend="${#fields.hasErrors('companyName')} ? 'is-invalid'"
+                       name="companyName"
+                       th:value="${companyForm.companyName}"
                        required>
-                <div class="invalid-feedback"
-                     th:if="${#fields.hasErrors('companyName')}"
-                     th:errors="*{companyName}">
-                </div>
               </div>
 
               <div class="mb-3">
                 <label class="form-label">NIP *</label>
                 <input type="text" class="form-control"
-                       th:field="*{nip}"
-                       th:classappend="${#fields.hasErrors('nip')} ? 'is-invalid'"
+                       name="nip"
+                       th:value="${companyForm.nip}"
                        required>
-                <div class="invalid-feedback"
-                     th:if="${#fields.hasErrors('nip')}"
-                     th:errors="*{nip}">
-                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">REGON</label>
+                <input type="text" class="form-control"
+                       name="regon"
+                       th:value="${companyForm.regon}"
+                       required>
               </div>
             </div>
 
-            <!-- Pola dla osoby prywatnej -->
-            <div th:if="${session.orderSession.customerType == T(com.example.shop_order.enums.CustomerType).INDIVIDUAL}">
+            <!-- Individual fields -->
+            <div th:if="${formType == 'IndividualCustomerForm'}"
+                 th:with="individualForm=${customerForm}">
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Imię *</label>
                   <input type="text" class="form-control"
-                         th:field="*{firstName}"
-                         th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
+                         name="firstName"
+                         th:value="${individualForm.firstName}"
                          required>
-                  <div class="invalid-feedback"
-                       th:if="${#fields.hasErrors('firstName')}"
-                       th:errors="*{firstName}">
-                  </div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Nazwisko *</label>
                   <input type="text" class="form-control"
-                         th:field="*{lastName}"
-                         th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
+                         name="lastName"
+                         th:value="${individualForm.lastName}"
                          required>
-                  <div class="invalid-feedback"
-                       th:if="${#fields.hasErrors('lastName')}"
-                       th:errors="*{lastName}">
-                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Wspólne pola -->
+            <!-- Common fields -->
             <div class="mb-3">
               <label class="form-label">Email *</label>
               <input type="email" class="form-control"
-                     th:field="*{email}"
-                     th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                     name="email"
+                     th:value="${customerForm.email}"
                      required>
-              <div class="invalid-feedback"
-                   th:if="${#fields.hasErrors('email')}"
-                   th:errors="*{email}">
-              </div>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Telefon *</label>
               <input type="text" class="form-control"
-                     th:field="*{phoneNumber}"
-                     th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid'"
+                     name="phoneNumber"
+                     th:value="${customerForm.phoneNumber}"
                      required>
-              <div class="invalid-feedback"
-                   th:if="${#fields.hasErrors('phoneNumber')}"
-                   th:errors="*{phoneNumber}">
-              </div>
             </div>
+
+            <!-- Hidden field to pass the form type -->
+            <input type="hidden" name="formType" th:value="${formType}">
 
             <div class="d-flex justify-content-between">
               <a th:href="@{/order/type}" class="btn btn-outline-warning">COFNIJ</a>
@@ -103,6 +96,7 @@
       </div>
     </div>
 
+    <!-- Podsumowanie zamówienia -->
     <div class="col-md-4">
       <div class="right-summary">
         <h4>Twoje zamówienie:</h4>
