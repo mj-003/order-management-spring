@@ -6,7 +6,6 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-// Strona wyboru typu klienta
 public class CustomerTypePage {
     private final WebDriver driver;
     private final WebDriverWait wait;

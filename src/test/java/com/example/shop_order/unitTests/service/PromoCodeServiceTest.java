@@ -1,7 +1,8 @@
-package com.example.shop_order.service;
+package com.example.shop_order.unitTests.service;
 
 import com.example.shop_order.entity.PromoCode;
 import com.example.shop_order.repository.PromoCodeRepository;
+import com.example.shop_order.service.PromoCodeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

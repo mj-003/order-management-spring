@@ -1,6 +1,7 @@
-package com.example.shop_order.controller;
+package com.example.shop_order.unitTests.controller;
 
 import com.example.shop_order.DTOs.*;
+import com.example.shop_order.controller.OrderController;
 import com.example.shop_order.entity.Customer;
 import com.example.shop_order.entity.Order;
 import com.example.shop_order.enums.CustomerType;

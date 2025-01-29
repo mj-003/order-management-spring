@@ -8,7 +8,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-// Strona dostawy
 public class DeliveryPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
@@ -38,29 +37,24 @@ public class DeliveryPage {
 
     public void fillDeliveryAddress(String street, String buildingNumber,
                                     String postalCode, String city, String phone) {
-        // Czyść i wypełnij pole ulicy
         WebElement streetInput = driver.findElement(By.id("street"));
-        streetInput.clear();  // Dodane czyszczenie
+        streetInput.clear();
         streetInput.sendKeys(street);
 
-        // Czyść i wypełnij pole numeru budynku
         WebElement buildingInput = driver.findElement(By.id("buildingNumber"));
-        buildingInput.clear();  // Dodane czyszczenie
+        buildingInput.clear();
         buildingInput.sendKeys(buildingNumber);
 
-        // Czyść i wypełnij pole kodu pocztowego
         WebElement postalCodeInput = driver.findElement(By.id("postalCode"));
-        postalCodeInput.clear();  // Dodane czyszczenie
+        postalCodeInput.clear();
         postalCodeInput.sendKeys(postalCode);
 
-        // Czyść i wypełnij pole miasta
         WebElement cityInput = driver.findElement(By.id("city"));
-        cityInput.clear();  // Dodane czyszczenie
+        cityInput.clear();
         cityInput.sendKeys(city);
 
-        // Czyść i wypełnij pole telefonu
         WebElement phoneInput = driver.findElement(By.id("phone"));
-        phoneInput.clear();  // Dodane czyszczenie
+        phoneInput.clear();
         phoneInput.sendKeys(phone);
     }
 
@@ -82,7 +76,6 @@ public class DeliveryPage {
         );
         // Przewiń do przycisku
         js.executeScript("arguments[0].scrollIntoView(true);", nextButton);
-        // Poczekaj chwilę na zakończenie przewijania
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {

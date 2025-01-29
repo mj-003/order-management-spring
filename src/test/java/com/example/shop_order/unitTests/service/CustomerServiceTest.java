@@ -1,4 +1,4 @@
-package com.example.shop_order.service;
+package com.example.shop_order.unitTests.service;
 
 import com.example.shop_order.DTOs.CompanyCustomerForm;
 import com.example.shop_order.DTOs.CustomerForm;
@@ -6,6 +6,7 @@ import com.example.shop_order.DTOs.IndividualCustomerForm;
 import com.example.shop_order.entity.Customer;
 import com.example.shop_order.enums.CustomerType;
 import com.example.shop_order.repository.CustomerRepository;
+import com.example.shop_order.service.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,7 +1,8 @@
-package com.example.shop_order.service;
+package com.example.shop_order.unitTests.service;
 
 import com.example.shop_order.entity.Order;
 import com.example.shop_order.enums.DeliveryType;
+import com.example.shop_order.service.DeliveryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,7 @@
-package com.example.shop_order.repository;
+package com.example.shop_order.unitTests.repository;
 
 import com.example.shop_order.entity.Product;
+import com.example.shop_order.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

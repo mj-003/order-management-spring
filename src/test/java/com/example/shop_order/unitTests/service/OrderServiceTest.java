@@ -1,4 +1,4 @@
-package com.example.shop_order.service;
+package com.example.shop_order.unitTests.service;
 
 import com.example.shop_order.DTOs.OrderSession;
 import com.example.shop_order.entity.Customer;

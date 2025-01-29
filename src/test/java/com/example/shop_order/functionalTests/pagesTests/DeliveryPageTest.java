@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DeliveryPageTest extends BaseSeleniumTest {
 
     private void goToDeliveryPage() {
-        // Przejście przez poprzednie kroki
         driver.get(BASE_URL + "/order/simulate/testSmall");
         waitForPageLoad();
 
@@ -40,7 +39,6 @@ class DeliveryPageTest extends BaseSeleniumTest {
         DeliveryPage deliveryPage = new DeliveryPage(driver, wait);
         deliveryPage.selectInpostDelivery();
 
-        // Sprawdź czy wybór paczkomatu jest widoczny
         assertTrue(driver.findElement(By.id("inpostSelection")).isDisplayed());
 
         deliveryPage.selectInpostPoint("WAW123");
@@ -58,7 +56,6 @@ class DeliveryPageTest extends BaseSeleniumTest {
         DeliveryPage deliveryPage = new DeliveryPage(driver, wait);
         deliveryPage.selectPickupDelivery();
 
-        // Sprawdź czy wybór punktu odbioru jest widoczny
         assertTrue(driver.findElement(By.id("pickupPointSelection")).isDisplayed());
 
         deliveryPage.selectPickupPoint("SHOP1");
@@ -72,16 +69,13 @@ class DeliveryPageTest extends BaseSeleniumTest {
         goToDeliveryPage();
         DeliveryPage deliveryPage = new DeliveryPage(driver, wait);
 
-        // Wybierz dostawę kurierem
         deliveryPage.selectCourierDelivery();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("courierAddressForm")));
 
-        // Sprawdź walidację pustego formularza
         deliveryPage.clickNext();
         assertTrue(driver.getCurrentUrl().contains("/order/delivery"),
                 "Powinniśmy pozostać na stronie dostawy gdy formularz jest pusty");
 
-        // Test z częściowo wypełnionym formularzem
         deliveryPage.fillDeliveryAddress(
                 "Testowa",
                 "",  // pusty numer budynku
@@ -93,7 +87,6 @@ class DeliveryPageTest extends BaseSeleniumTest {
         assertTrue(driver.getCurrentUrl().contains("/order/delivery"),
                 "Powinniśmy pozostać na stronie dostawy gdy brakuje numeru budynku");
 
-        // Test z poprawnymi danymi
         deliveryPage.fillDeliveryAddress(
                 "Testowa",
                 "123",
@@ -115,9 +108,7 @@ class DeliveryPageTest extends BaseSeleniumTest {
 
         // Test kosztu dla kuriera
         deliveryPage.selectCourierDelivery();
-        // Poczekaj na załadowanie formularza kuriera
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("courierAddressForm")));
-        // Sprawdź koszt w etykiecie
         WebElement courierCostLabel = driver.findElement(
                 By.cssSelector("label[for='courier'] .d-flex span:last-child")
         );
@@ -125,7 +116,6 @@ class DeliveryPageTest extends BaseSeleniumTest {
 
         // Test kosztu dla InPost
         deliveryPage.selectInpostDelivery();
-        // Poczekaj na załadowanie formularza InPost
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("inpostSelection")));
         WebElement inpostCostLabel = driver.findElement(
                 By.cssSelector("label[for='inpost'] .d-flex span:last-child")
@@ -134,7 +124,6 @@ class DeliveryPageTest extends BaseSeleniumTest {
 
         // Test kosztu dla odbioru osobistego
         deliveryPage.selectPickupDelivery();
-        // Poczekaj na załadowanie formularza pickup
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("pickupPointSelection")));
         WebElement pickupCostLabel = driver.findElement(
                 By.cssSelector("label[for='pickup'] .d-flex span:last-child")

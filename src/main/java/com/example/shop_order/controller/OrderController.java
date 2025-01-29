@@ -127,6 +127,13 @@ public class OrderController {
         }
 
         orderSession.setOrder(order);
+
+        if (scenario.equals("testSmall")) {
+            System.out.println("dupa dupa dupa dupa");
+            System.out.println(orderSession.getOrder().getCustomer().getLoyaltyPoints());
+            orderSession.getOrder().getCustomer().setLoyaltyPoints(500);
+            System.out.println(orderSession.getOrder().getCustomer().getLoyaltyPoints());
+        }
         return "redirect:/order/type";
     }
 
@@ -203,6 +210,10 @@ public class OrderController {
     public String processCustomerForm(HttpServletRequest request,
                                       @ModelAttribute("orderSession") OrderSession session) {
         CustomerForm form;
+        Integer currentPoints = null;
+        if (session.getOrder() != null && session.getOrder().getCustomer() != null) {
+            currentPoints = session.getOrder().getCustomer().getLoyaltyPoints();
+        }
 
         if (session.getCustomerType() == CustomerType.COMPANY) {
             CompanyCustomerForm companyForm = new CompanyCustomerForm();
@@ -225,6 +236,9 @@ public class OrderController {
                 });
         try {
             Customer customer = customerService.createCustomer(form, session.getCustomerType());
+            if (currentPoints != null) {
+                customer.setLoyaltyPoints(currentPoints);
+            }
             session.getOrder().setCustomer(customer);
             return "redirect:/order/delivery";
         } catch (Exception e) {
@@ -408,7 +422,9 @@ public class OrderController {
 
         Integer availablePoints = 0;
         if (session.getOrder().getCustomer() != null) {
+            System.out.println(session.getOrder().getCustomer());
             availablePoints = session.getOrder().getCustomer().getLoyaltyPoints();
+            System.out.println("customer points: " + session.getOrder().getCustomer().getLoyaltyPoints());
             System.out.println("available points: " + availablePoints);
         }
         model.addAttribute("availablePoints", availablePoints);
